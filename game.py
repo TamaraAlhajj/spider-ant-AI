@@ -1,4 +1,7 @@
 from collections import deque
+from random import randint
+
+# TODO refactor!!
 
 ############################ Initial Setup ############################
 
@@ -7,7 +10,7 @@ from collections import deque
 # Dimensions #
 board = 16
 
-# Defining all ant moves, NWSE #
+# Defining all ant moves, NWSE -- logic is wonky here TODO #
 vectors = [[0, 1], [-1, 0], [0, -1], [1, 0]]
 
 """ 
@@ -37,8 +40,7 @@ moves = [
     [0, -1]
 ]
 
-# Ant direction for this game #
-direction = vectors[3]
+direction = vectors[0]
 
 # State space as a set (hash table) O(1) membership check #
 seen_states = {}
@@ -47,6 +49,38 @@ seen_states = {}
 path = deque()
 
 #######################################################################
+
+###### ant stuff ######
+
+def ant_init():
+    # one dim must be 0 or 16 to be an edge
+        
+    if(randint(0,10) <= 5):
+        if(randint(0,10) <= 5):
+            x = 0
+        else:
+            x = 15
+        y = randint(0, 15)
+    else:
+        if(randint(0,10) <= 5):
+            y = 0
+        else:
+            y = 15
+        x = randint(0, 15)
+
+    return [x,y]
+
+def ant_dir(init):
+    if(init[0] == 0):
+        return vectors[2]      
+    elif(init[0] == 16):
+        return vectors[0]
+    elif(init[1] == 0):
+        return vectors[1]
+    else:
+        return vectors[3]
+
+#############################################################################
 
 
 def off_board(state):
@@ -117,7 +151,7 @@ def display_path(goal):
 def goal_check(state):
     if(state[0] == state[2] and state[1] == state[3]):
         display_path(state)
-        searching = False
+        return False
     return True
 
 
@@ -129,21 +163,26 @@ def bfs(init):
     while (searching):
         if(path):
             state = path.popleft()
-            searching = goal_check(state)
             expand(state)
+            searching = goal_check(state)
         else:
             searching = False
             print('---end of game---')
 
 
 def dfs(init):
-    # false once goal state is reached #
+    # false once goal state game over is reached #
+    state = init
     searching = True
 
     while (searching):
-        state = path.pop()
-        goal_check(state)
-        expand(state)
+        if(path):
+            state = path.pop()
+            expand(state)
+            searching = goal_check(state)
+        else:
+            searching = False
+            print('---end of game---')
 
 
 def A_star():
@@ -151,15 +190,16 @@ def A_star():
 
 
 def play():
-    spider = [9, 5]
-    ant = [0, 0]
+    spider = [randint(0,15), randint(0,15)]
+    ant = ant_init()
     initial_state = spider + ant
+    direction = ant_dir(initial_state)
 
     seen_states[tuple(initial_state)] = 0
     path.append(initial_state)
 
-    bfs(initial_state)
-
+    #bfs(initial_state)
+    dfs(initial_state)
 
 def main():
     play()
