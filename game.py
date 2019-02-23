@@ -1,10 +1,8 @@
 from collections import deque
 from random import randint
 from time import clock
-from queue import PriorityQueue
+from myPQ import PriorityQueue
 from math import sqrt
-
-# TODO refactor!! Print time elapsed
 
 ############################ Initial Setup ############################
 
@@ -48,6 +46,8 @@ path = deque()
 
 # Defining all ant moves #
 vectors = [[0, 1], [-1, 0], [0, -1], [1, 0]]
+#vectors = [[0, 2], [-2, 0], [0, -2], [2, 0]]
+#vectors = [[0, 3], [-3, 0], [0, -3], [3, 0]]
 
 direction = vectors[0]
 #######################################################################
@@ -178,7 +178,9 @@ def bfs(init):
         expand(state)
         if(goal_check(state)):
             display_path(state)
-            break
+            return
+    print("No Solution Found for state : \n")
+    display_board(init)
 
 
 def dfs(init):
@@ -190,21 +192,21 @@ def dfs(init):
         expand(state)
         if(goal_check(state)):
             display_path(state)
-            break
+            return
+    print("No Solution Found for state : \n")
+    display_board(init)
 
-def diagonal(state):
-    # Diagonal distance on a square grid
+def raw(state):
+    # raw distance on a square grid
     sx = state[0]
     sy = state[1]
     ax = state[2]
     ay = state[3]
 
-    D = 1 # min cost to move
-    D2 = 4 # cost of knight move (diagonal)
-
     dx = abs(sx - ax)
     dy = abs(sy - ay)
-    return D * (dx + dy) + (D2 - 2 * D) * min(dx, dy)
+    
+    return (dx + dy)/2
 
 
 def euclid(state):
@@ -219,15 +221,15 @@ def euclid(state):
     return sqrt(dx**2 + dy**2)
 
 def avg(state):
-    c1 = diagonal(state)
+    c1 = raw(state)
     c2 = euclid(state)
     return (c1 + c2)/2
 
 def A_star(init, heuristic):
-    global moves, fringe
+    global moves
 
     if(heuristic == 1):
-        heuristic = diagonal
+        heuristic = raw
     elif(heuristic == 2):
         heuristic = euclid
     else:
@@ -256,7 +258,7 @@ def A_star(init, heuristic):
                 display_board(current)
                 current = came_from[current]
             print('\nDONE! {} states generated, {} move solution found. \nScroll up to see solution.'.format(move_count, count))
-            break
+            return
         
         for move in moves:
             new_move = make_move(current, move)
@@ -269,7 +271,8 @@ def A_star(init, heuristic):
                     fringe.put(new_move, priority)
                     move_count += 1
                     came_from[new_move] = current
-
+    print("No Solution Found for state {}: \n".format(init))
+    display_board(init)
 
 def play():
     global direction, seen_states, path
@@ -281,7 +284,7 @@ def play():
         spider = [randint(0,15), randint(0,15)]
         ant = ant_init()
         initial_state = spider + ant
-        
+
         # globals
         direction = ant_dir(ant)
         seen_states[tuple(initial_state)] = None
@@ -301,14 +304,14 @@ def play():
             print('Run Time: {:0.3f} seconds\n'.format(elapsed - start))
         elif(search == 'a*'):
             start = clock()
-            h = input("Which heuristic? (1 diagonal, 2 euclid, 3 avg) : ")
+            h = input("Which heuristic? (1 raw, 2 euclid, 3 avg) : ")
             A_star(initial_state, h)
             elapsed = clock()
             print('Run Time: {:0.3f} seconds\n'.format(elapsed - start))
         else:
             print('Invalid search')
         reset()
-        check = input('Try again? (y/n) : ')
+        check = input('Try again? (n to exit, any key to play) : ')
         if(check == 'n'):
             playing = False
 
