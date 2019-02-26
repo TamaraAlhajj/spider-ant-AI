@@ -290,19 +290,19 @@ def play():
         seen_states[tuple(initial_state)] = None
         path.append(initial_state)
 
-        search = input('Choose an AI! (bfs, dfs, a*) : ')
+        search = input('Choose an AI! (1 BFS, 2 DFS, 3 A*) : ')
 
-        if(search == 'bfs'):
+        if(search == '1'):
             start = clock()
             bfs(initial_state)
             elapsed = clock()
             print('Run Time: {:0.3f} seconds\n'.format(elapsed - start))
-        elif(search == 'dfs'):
+        elif(search == '2'):
             start = clock()
             dfs(initial_state)
             elapsed = clock()
             print('Run Time: {:0.3f} seconds\n'.format(elapsed - start))
-        elif(search == 'a*'):
+        elif(search == '3'):
             start = clock()
             h = input("Which heuristic? (1 raw, 2 euclid, 3 avg) : ")
             A_star(initial_state, h)
@@ -311,8 +311,8 @@ def play():
         else:
             print('Invalid search')
         reset()
-        check = input('Try again? (n to exit, any key to play) : ')
-        if(check == 'n'):
+        check = input('e to exit, any key to continue: ')
+        if(check == 'e'):
             playing = False
 
 
